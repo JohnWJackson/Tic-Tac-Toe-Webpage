@@ -23,8 +23,52 @@ const gameBoard = (() => {
     });
   }
 
-  const storeBoard = (square) => {
-
+  // Stores the board state after a turn
+  const checkIfWinner = (square) => {
+        let winConditions = { 'row_1' : 0, 'row_2' : 0, 'row_3' : 0,
+                          'column_1' : 0, 'column_2': 0, 'column_3': 0,
+                          'diaganol_1' : 0, 'diaganol_2' : 0 }
+    
+    for (i = 0; i < Object.keys(board).length; i++) {
+      if (Object.values(board)[i] == Player.getSide()) {
+        switch (Object.keys(board)[i]) {
+          case 'A1': winConditions['row_1']++;
+                     winConditions['column_1']++;
+                     winConditions['diaganol_1']++;
+                     
+                     break;
+          case 'A2': winConditions['row_1']++;
+                     winConditions['column_2']++;
+                     break;
+          case 'A3': winConditions['row_1']++;
+                     winConditions['column_3']++;
+                     winConditions['diaganol_2']++;
+                     break;
+          case 'B1': winConditions['row_2']++;
+                     winConditions['column_1']++;
+                     break;
+          case 'B2': winConditions['row_2']++;
+                     winConditions['column_2']++;
+                     winConditions['diaganol_1']++;
+                     winConditions['diaganol_2']++;
+                     break;
+          case 'B3': winConditions['row_2']++;
+                     winConditions['column_3']++;
+                     break;
+          case 'C1': winConditions['row_3']++;
+                     winConditions['column_1']++;
+                     winConditions['diaganol_2']++;
+                     break;
+          case 'C2': winConditions['row_3']++;
+                     winConditions['column_2']++;
+                     break;
+          case 'C3': winConditions['row_3']++;
+                     winConditions['column_3']++;
+                     winConditions['diaganol_1']++;
+                     break;
+        }
+      }
+    }
   }
 
   // Event listeners and perform actions when board clicked
@@ -36,7 +80,7 @@ const gameBoard = (() => {
         if (isValid(sq)) {
           placeMove(sq, Player);
           if (isWinner(Player)) {
-          
+            console.log("WINNER");
 
           }
         //   updateGame();
@@ -51,30 +95,58 @@ const gameBoard = (() => {
   }
 
   const isWinner = (Player) => {
-    // console.log(Player.getSide());
-
-    // let placedSquares = [['row1', 0], ['row2', 0], ['row3', 0], 
-    //                     ['column1', 0], ['column2', 0], ['column3', 0],
-    //                     ['diagonal1', 0], ['diagonal2', 0]];
-    const squares = document.querySelectorAll('.square');
-    squares.forEach(sq => {
-      // console.log(Player.getSide());
-      // if (sq.textContent == Player.side) {
-      //   placedSquares.push(sq.dataset.key);
-      //   switch (sq.dataset.key) {
-      //     case 'A1': placedSquares[0][1]++;
-          // case 'A2': a++ two ++;
-          // case 'A3': a++ three++;
-          // case 'B1': b++ one++;
-          // case 'B2': b++ two++;
-          // case 'B3': b++ three++;
-          // case 'C1': c++ one++;
-          // case 'C2': c++ two++;
-          // case 'C3': c++ three++;
-        // }
-        //console.log(placedSquares[0][1]);
-      // }
-    })
+    let winConditions = { 'row_1' : 0, 'row_2' : 0, 'row_3' : 0,
+                          'column_1' : 0, 'column_2': 0, 'column_3': 0,
+                          'diaganol_1' : 0, 'diaganol_2' : 0 }
+    
+    for (i = 0; i < Object.keys(board).length; i++) {
+      if (Object.values(board)[i] == Player.getSide()) {
+        switch (Object.keys(board)[i]) {
+          case 'A1': winConditions['row_1']++;
+                     winConditions['column_1']++;
+                     winConditions['diaganol_1']++;
+                     
+                     break;
+          case 'A2': winConditions['row_1']++;
+                     winConditions['column_2']++;
+                     break;
+          case 'A3': winConditions['row_1']++;
+                     winConditions['column_3']++;
+                     winConditions['diaganol_2']++;
+                     break;
+          case 'B1': winConditions['row_2']++;
+                     winConditions['column_1']++;
+                     break;
+          case 'B2': winConditions['row_2']++;
+                     winConditions['column_2']++;
+                     winConditions['diaganol_1']++;
+                     winConditions['diaganol_2']++;
+                     break;
+          case 'B3': winConditions['row_2']++;
+                     winConditions['column_3']++;
+                     break;
+          case 'C1': winConditions['row_3']++;
+                     winConditions['column_1']++;
+                     winConditions['diaganol_2']++;
+                     break;
+          case 'C2': winConditions['row_3']++;
+                     winConditions['column_2']++;
+                     break;
+          case 'C3': winConditions['row_3']++;
+                     winConditions['column_3']++;
+                     winConditions['diaganol_1']++;
+                     break;
+        }
+      }
+    }
+    
+    for (i = 0; i < Object.keys(winConditions).length; i++) {
+      console.log(Object.values(winConditions)[i]);
+      if (Object.values(winConditions)[i] == 3) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Checks if a square is a valid move
