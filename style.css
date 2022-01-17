@@ -78,8 +78,28 @@ body {
   color: rgba(128, 128, 128, 0.849);
 }
 
-.square .winning {
+/* .winner {
   border: 5px dashed black;
-  border-radius: 50%;
-  display: inline-block;
+  border-radius: 70%;
+  display: flex;
+  justify-content: center;
+} */
+
+.winner {
+  animation: opacity 1.5s ease-in-out infinite;
+  opacity: 1;
+}
+
+@keyframes opacity {
+0% {
+  opacity: 1;
+}
+
+50% {
+  opacity: 0
+}
+
+100% {
+  opacity: 1;
+}
 }

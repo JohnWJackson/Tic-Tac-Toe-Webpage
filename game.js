@@ -13,8 +13,9 @@ const Player = (side, id) => {
   const getWinner = () => winner;
   const declareWinner = () => { winner = true; }
   const declareTie = () => { winner = null; }
-  const update = () => {
-
+  const resetPlayer = () => {
+    winner = false;
+    turn = false;
   }
 
   setSide();
@@ -22,7 +23,7 @@ const Player = (side, id) => {
   return { getSide, isTurn, 
             startTurn, finishedTurn, 
             getWinner, declareWinner, 
-            declareTie, update }
+            declareTie, resetPlayer }
 };
 
 const gameBoard = (() => {
@@ -60,66 +61,101 @@ const gameBoard = (() => {
     if (Player1.isTurn() ? Player1.finishedTurn() : Player1.startTurn());
     if (Player2.isTurn() ? Player2.finishedTurn() : Player2.startTurn());
     highlightTurn(Player1, Player2);
-    //console.log(Player1.isTurn());
   }
 
   // Check if there is a winner
   const isWinner = (Player) => {
-    let winConditions = { 'row_1' : 0, 'row_2' : 0, 'row_3' : 0,
-                          'column_1' : 0, 'column_2': 0, 'column_3': 0,
-                          'diaganol_1' : 0, 'diaganol_2' : 0 }
-    
-    for (i = 0; i < Object.keys(board).length; i++) {
+    const winConditions = [ ['row_1', 0], ['row_2', 0], ['row_3', 0],
+                          ['column_1', 0], ['column_2', 0], ['column_3', 0],
+                          ['diaganol_1', 0], ['diaganol_2', 0] ]
+                          
+    for (i = 0; i < winConditions.length; i++) {
+      winConditions[i][1] = 0;
+      console.log(winConditions[i][1]);
+    }
+
+    // Map all squares into array of win conditions
+    for (i = 0; i < 9; i++) {
       if (Object.values(board)[i] == Player.getSide()) {
         switch (Object.keys(board)[i]) {
-          case 'A1': winConditions['row_1']++;
-                     winConditions['column_1']++;
-                     winConditions['diaganol_1']++;                    
+          case 'A1': winConditions[0][1]++;
+                     winConditions[3][1]++;
+                     winConditions[6][1]++;                    
                      break;
-          case 'A2': winConditions['row_1']++;
-                     winConditions['column_2']++;
+          case 'A2': winConditions[0][1]++;
+                     winConditions[4][1]++;
                      break;
-          case 'A3': winConditions['row_1']++;
-                     winConditions['column_3']++;
-                     winConditions['diaganol_2']++;
+          case 'A3': winConditions[0][1]++;
+                     winConditions[5][1]++;
+                     winConditions[7][1]++;
                      break;
-          case 'B1': winConditions['row_2']++;
-                     winConditions['column_1']++;
+          case 'B1': winConditions[1][1]++;
+                     winConditions[3][1]++;
                      break;
-          case 'B2': winConditions['row_2']++;
-                     winConditions['column_2']++;
-                     winConditions['diaganol_1']++;
-                     winConditions['diaganol_2']++;
+          case 'B2': winConditions[1][1]++;
+                     winConditions[4][1]++;
+                     winConditions[6][1]++;
+                     winConditions[7][1]++;
                      break;
-          case 'B3': winConditions['row_2']++;
-                     winConditions['column_3']++;
+          case 'B3': winConditions[1][1]++;
+                     winConditions[5][1]++;
                      break;
-          case 'C1': winConditions['row_3']++;
-                     winConditions['column_1']++;
-                     winConditions['diaganol_2']++;
+          case 'C1': winConditions[2][1]++;
+                     winConditions[3][1]++;
+                     winConditions[7][1]++;
                      break;
-          case 'C2': winConditions['row_3']++;
-                     winConditions['column_2']++;
+          case 'C2': winConditions[2][1]++;
+                     winConditions[4][1]++;
                      break;
-          case 'C3': winConditions['row_3']++;
-                     winConditions['column_3']++;
-                     winConditions['diaganol_1']++;
+          case 'C3': winConditions[2][1]++;
+                     winConditions[5][1]++;
+                     winConditions[6]++;
                      break;
         }
       }
     }
-    
-    for (i = 0; i < Object.keys(winConditions).length; i++) {
-      //console.log(Object.values(winConditions)[i]);
-      if (Object.values(winConditions)[i] == 3) {
-        //console.log(Object.keys(winConditions));
-        switch (Object.keys(winConditions)) {
 
+    // Find the win condition if there is one
+    for (i = 0; i < winConditions.length; i++) {
+      if (winConditions[i][1] == 3) {
+        let squares;
+        switch (winConditions[i][0]) {
+            case 'row_1': 
+              squares = document.querySelectorAll('.row_1');
+              break;
+            case 'row_2': 
+              squares = document.querySelectorAll('.row_2');
+              break;
+            case 'row_3':
+              squares = document.querySelectorAll('.row_3');
+              break;
+            case 'column_1':
+              squares = document.querySelectorAll('.column_1');
+              break;
+            case 'column_2':
+              squares = document.querySelectorAll('.column_2');
+              break;
+            case 'column_3':
+              squares = document.querySelectorAll('.column_3');
+              break;
+            case 'diaganol_1':
+              squares = document.querySelectorAll('.diaganol_1');
+              break;
+            case 'diaganol_2':
+              squares = document.querySelectorAll('.diaganol_2');
+              break;
         }
-        return true;
+
+        // Give class attribute "#winner" to each winning square
+        // Highlighting each square
+        squares.forEach(square => { 
+          square.classList += ' winner';
+        });
+
+        return true; //if there was a win condition
       }
     }
-    return false;
+    return false; //there wasn't a win condition
   }
 
   const isBoardFull = () => {
@@ -198,18 +234,25 @@ const gameBoard = (() => {
     const resetButton = document.querySelector('#new_game');
     resetButton.addEventListener('click', function() {
       resetBoard();
+      Player1.resetPlayer();
+      Player2.resetPlayer();
       Player1.startTurn();
-      Player2.finishedTurn(); 
       highlightTurn(Player1, Player2);  
     });
   }
 
   // Clear board and initialize
   const resetBoard = () => {
+    // reset js board
+    for(var key in board) {
+      board[key] = 0;
+    }
+    // reset the html/css
     const squares = document.querySelectorAll('.square');
     squares.forEach(sq => {
       sq.textContent = '';
       sq.removeAttribute('id');
+      sq.classList.remove('winner');
     });
   }
 
@@ -220,8 +263,9 @@ const game = (() => {
   const initGame = () => {
     let player1 = Player('X', 1);
     let player2 = Player('O', 2);
+    player1.resetPlayer();
+    player2.resetPlayer();
     player1.startTurn();
-    player2.finishedTurn();
     gameBoard.highlightTurn(player1, player2);
     const round = gameBoard.boardListen(player1, player2);
     gameBoard.resetEvent(player1, player2);
