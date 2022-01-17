@@ -1,15 +1,22 @@
-const Player = (side) => {
+const Player = (side, id) => {
   let turn = false;
   let playerSide = side;
   let winner = false;
+  const setSide = () => {
+    const container = document.querySelector('#player' + id);
+    container.dataset.side = playerSide;
+  }
   const getSide = () => playerSide;
   const isTurn = () => turn;
   const startTurn = () => { turn = true };
   const finishedTurn = () => { turn = false };
-  const resetPlayer = () => { turn = false; playerSide = '';}
+  const resetPlayer = () => { turn = false; winner = false;}
   const getWinner = () => winner;
   const declareWinner = () => { winner = true; }
   const declareTie = () => { winner = null; }
+
+  setSide();
+
   return { getSide, isTurn, 
             startTurn, finishedTurn, 
             resetPlayer, getWinner, 
@@ -26,28 +33,23 @@ const gameBoard = (() => {
   const boardListen = (Player1, Player2) => {
     //Event listeners on game squares
     const squares = document.querySelectorAll('.square');
-    squares.forEach(sq => {
-      sq.addEventListener('click', function() {
-        const Player = Player1.isTurn() ? Player1 : Player2;
-        console.log(Player);
-        if (isValid(sq)) {
-          placeMove(sq, Player);
-          if (isTie()) {
-            Player.declareTie();
-            console.log("tie");
-          }
-          if (isWinner(Player)) {
-            Player.declareWinner();
-            console.log("WINNER");
-          }
-          switchTurn(Player1, Player2);
-        //   updateGame();
-        // }
-        // if 3 in a row declare winner
-        // if whole board is full and no winner declare tie;
-        // draw a line through winning 3
-        // endGame(); freezes board until reinitalized
+    squares.forEach(sq => { // Listen for mouseover
+      sq.addEventListener('mouseover', function() {
+        if (sq.id != 'clicked') {
+          const Player = Player1.isTurn() ? Player1 : Player2; // Which player?
+          sq.id = 'hover';
+          sq.textContent = Player.getSide();
         }
+      });
+      sq.addEventListener('mouseout', function() { // Listen for mouseout
+        if (sq.id == 'hover') {
+          const Player = Player1.isTurn() ? Player1 : Player2; // Which player?
+          sq.removeAttribute('id');
+          sq.textContent = '';
+        }
+      });
+      sq.addEventListener('click', function() { // Listen for mouse clicks
+        updateBoard(Player1, Player2, sq); // player made a move -- updateboard
       });
     });
   }
@@ -55,6 +57,7 @@ const gameBoard = (() => {
   const switchTurn = (Player1, Player2) => {
     if (Player1.isTurn() ? Player1.finishedTurn() : Player1.startTurn());
     if (Player2.isTurn() ? Player2.finishedTurn() : Player2.startTurn());
+    highlightTurn(Player1, Player2);
     //console.log(Player1.isTurn());
   }
 
@@ -132,26 +135,69 @@ const gameBoard = (() => {
 
   // Checks if a square is a valid move
   const isValid = (square) => {
-    return square.textContent.length == 0; // valid square if theres no content already there
+    return square.id != 'clicked'; // valid square if it was never clicked before
   }
 
   // Places a move on the board and stores it
   const placeMove = (square, Player) => {
+    square.removeAttribute('id');
+    square.id = 'clicked';
     board[square.dataset.key] = Player.getSide();
     //console.log(board[square.dataset.key]);
     return square.textContent = Player.getSide();   
   }
 
-  return {boardListen, isBoardFull}
+  const highlightTurn = (Player1, Player2) => {
+    if (Player1.isTurn()) {
+      const container = document.querySelector('#player1');
+      container.className = 'highlight';
+      const containerTwo = document.querySelector('#player2');
+      containerTwo.className = 'player_container';
+
+    }
+    if (Player2.isTurn()) {
+      const container = document.querySelector('#player2');
+      container.className = 'highlight';
+      const containerTwo = document.querySelector('#player1');
+      containerTwo.className = 'player_container';
+    }
+
+
+    // const sides = document.querySelectorAll('.side');
+    // sides.forEach(s => {
+    //   if (Player.getSide() == s.textContent) {
+    //     if (s.textContent == 'X')
+    //     const container = document.querySelector()
+    //   }
+    // });  
+  }
+
+  const updateBoard = (Player1, Player2, square) => {
+    const Player = Player1.isTurn() ? Player1 : Player2; // Which player?
+    if (isValid(square)) { // If valid move
+      placeMove(square, Player);
+      if (isTie()) {
+        Player.declareTie();
+        console.log("tie");
+      }
+      if (isWinner(Player)) {
+        Player.declareWinner();
+        console.log("WINNER");
+      }
+      switchTurn(Player1, Player2);
+    }
+  }
+
+  return {boardListen, isBoardFull, highlightTurn}
 })();
 
 const game = (() => {
   const initGame = () => {
-    const player1 = Player('X');
-    const player2 = Player('O');
+    const player1 = Player('X', 1);
+    const player2 = Player('O', 2);
     player1.startTurn();
+    gameBoard.highlightTurn(player1, player2);
     const round = gameBoard.boardListen(player1, player2);
-    
   };
 
   const resetEvent = () => {
