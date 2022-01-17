@@ -10,17 +10,19 @@ const Player = (side, id) => {
   const isTurn = () => turn;
   const startTurn = () => { turn = true };
   const finishedTurn = () => { turn = false };
-  const resetPlayer = () => { turn = false; winner = false;}
   const getWinner = () => winner;
   const declareWinner = () => { winner = true; }
   const declareTie = () => { winner = null; }
+  const update = () => {
+
+  }
 
   setSide();
 
   return { getSide, isTurn, 
             startTurn, finishedTurn, 
-            resetPlayer, getWinner, 
-            declareWinner, declareTie }
+            getWinner, declareWinner, 
+            declareTie, update }
 };
 
 const gameBoard = (() => {
@@ -72,8 +74,7 @@ const gameBoard = (() => {
         switch (Object.keys(board)[i]) {
           case 'A1': winConditions['row_1']++;
                      winConditions['column_1']++;
-                     winConditions['diaganol_1']++;
-                     
+                     winConditions['diaganol_1']++;                    
                      break;
           case 'A2': winConditions['row_1']++;
                      winConditions['column_2']++;
@@ -111,6 +112,10 @@ const gameBoard = (() => {
     for (i = 0; i < Object.keys(winConditions).length; i++) {
       //console.log(Object.values(winConditions)[i]);
       if (Object.values(winConditions)[i] == 3) {
+        //console.log(Object.keys(winConditions));
+        switch (Object.keys(winConditions)) {
+
+        }
         return true;
       }
     }
@@ -188,23 +193,14 @@ const gameBoard = (() => {
     }
   }
 
-  return {boardListen, isBoardFull, highlightTurn}
-})();
-
-const game = (() => {
-  const initGame = () => {
-    const player1 = Player('X', 1);
-    const player2 = Player('O', 2);
-    player1.startTurn();
-    gameBoard.highlightTurn(player1, player2);
-    const round = gameBoard.boardListen(player1, player2);
-  };
-
-  const resetEvent = () => {
+  const resetEvent = (Player1, Player2) => {
     //Event listeners on new game button
     const resetButton = document.querySelector('#new_game');
     resetButton.addEventListener('click', function() {
       resetBoard();
+      Player1.startTurn();
+      Player2.finishedTurn(); 
+      highlightTurn(Player1, Player2);  
     });
   }
 
@@ -213,12 +209,25 @@ const game = (() => {
     const squares = document.querySelectorAll('.square');
     squares.forEach(sq => {
       sq.textContent = '';
+      sq.removeAttribute('id');
     });
   }
 
-  return {initGame, resetEvent}
+  return {boardListen, isBoardFull, highlightTurn, resetEvent}
 })();
- 
+
+const game = (() => {
+  const initGame = () => {
+    let player1 = Player('X', 1);
+    let player2 = Player('O', 2);
+    player1.startTurn();
+    player2.finishedTurn();
+    gameBoard.highlightTurn(player1, player2);
+    const round = gameBoard.boardListen(player1, player2);
+    gameBoard.resetEvent(player1, player2);
+  };
+
+  return {initGame}
+})();
 
 const newGame = game.initGame();
-const resetListener = game.resetEvent(newGame);

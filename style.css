@@ -77,3 +77,9 @@ body {
 #hover {
   color: rgba(128, 128, 128, 0.849);
 }
+
+.square .winning {
+  border: 5px dashed black;
+  border-radius: 50%;
+  display: inline-block;
+}
