@@ -71,7 +71,6 @@ const gameBoard = (() => {
                           
     for (i = 0; i < winConditions.length; i++) {
       winConditions[i][1] = 0;
-      console.log(winConditions[i][1]);
     }
 
     // Map all squares into array of win conditions
@@ -149,7 +148,7 @@ const gameBoard = (() => {
         // Give class attribute "#winner" to each winning square
         // Highlighting each square
         squares.forEach(square => { 
-          square.classList += ' winner';
+          square.classList += ' flash';
         });
 
         return true; //if there was a win condition
@@ -171,7 +170,14 @@ const gameBoard = (() => {
 
   // Check if there is a tie
   const isTie = () => {
-    return isBoardFull();
+    if (isBoardFull()) {
+      squares = document.querySelectorAll('.square');
+      squares.forEach(square => { 
+        square.classList += ' flash';
+      });
+      return true;
+    }
+    return false;
   }
 
   // Checks if a square is a valid move
@@ -252,7 +258,7 @@ const gameBoard = (() => {
     squares.forEach(sq => {
       sq.textContent = '';
       sq.removeAttribute('id');
-      sq.classList.remove('winner');
+      sq.classList.remove('flash');
     });
   }
 
