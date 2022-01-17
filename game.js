@@ -108,7 +108,7 @@ const gameBoard = (() => {
                      break;
           case 'C3': winConditions[2][1]++;
                      winConditions[5][1]++;
-                     winConditions[6]++;
+                     winConditions[6][1]++;
                      break;
         }
       }
